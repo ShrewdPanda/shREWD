@@ -51,9 +51,9 @@ char *readline()
 		/* if data exceeds size of buffer */
 		if (position >= bufsize)
 		{
-			/* double the buffer size */
+			/* increase the buffer size */
 			bufsize += BUFSIZE;
-			/* double the memory allocation */
+			/* increase the memory allocation */
 			buf = realloc(buf, bufsize);
 		
 			/* handle mem-alloc exceptions */
@@ -84,17 +84,18 @@ char **parse(char *line)
 	token = strtok(line, TOKEN_DELIM);
 	while (token != NULL)
 	{
+		/* store each token in token[position] */
 		tokens[position] = token;
 		position++;
 		
 		/* if input is too big for buffer */
 		if (position >= bufsize)
 		{
-			/* double the buffer size */
+			/* increase buffer size */
 			bufsize += TOKEN_SIZE;
 			/* store a backup */
 			tokens_backup = tokens;
-			/* double the memory allocation */
+			/* increase the memory allocation */
 			tokens = realloc(tokens, sizeof(char*) * bufsize);
 			
 			/* handle memory allocation exceptions */
@@ -106,10 +107,10 @@ char **parse(char *line)
 			}
 		}
 		
-		/* set value after last as NULL */
+		/* token array is cleared*/
 		token = strtok(NULL, TOKEN_DELIM);
 	}
-	/* set value after last as NULL (if any were valid) and return */
+	/* last position is cleared */
 	tokens[position] = NULL;
 	return tokens;
 }
@@ -134,6 +135,7 @@ void shrewd_loop()
 		args = parse(lines);
 		//status = execute(args);
 		free(lines);
+		free(args);
 
 	} while(TRUE);
 }
