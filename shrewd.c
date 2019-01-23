@@ -37,7 +37,7 @@ int num_commands()
 /* explicit declarations for shell function calls */
 int call_exit(char **args)
 {
-	return 0;
+	exit(0);
 }
 
 int call_help(char **args)
