@@ -42,12 +42,14 @@ int call_exit(char **args)
 
 int call_help(char **args)
 {
-	printf("shREWD :: developed by Brian Erickson\n");
+	printf("\n\nshREWD :: developed by Brian Erickson\n");
+	printf("Copyleft 2019, GNU GPL v2.0\n");
 	printf("Simple shell scripting interface\n");
 	printf("::::::::::::::::::::::::::::::::::\n\n");
 	
 	for (int i = 0; i < num_commands(); i++)
 		printf(" %s\n", command_list[i]);
+	printf("\n\n");
 	return 1;
 }
 
