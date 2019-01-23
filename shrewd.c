@@ -1,6 +1,10 @@
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define BUFSIZE 1024
 #define TRUE 1
@@ -8,6 +12,44 @@
 #define EXIT_SUCCESS 0
 #define TOKEN_DELIM "\t\r\n\a"
 #define TOKEN_SIZE 64
+
+
+/* prototypes for each of the calls */
+int call_exit(char **args);
+int call_help(char **args);
+
+/* list of calls */
+char *command_list[] = {
+	"exit",
+	"help"
+};
+
+int (*command_calls[]) (char **) = {
+	&call_exit,
+	&call_help
+};
+
+int num_commands()
+{
+	return sizeof(command_list) / sizeof(char *);
+}
+
+/* explicit declarations for shell function calls */
+int call_exit(char **args)
+{
+	return 0;
+}
+
+int call_help(char **args)
+{
+	printf("shREWD :: developed by Brian Erickson\n");
+	printf("Simple shell scripting interface\n");
+	printf("::::::::::::::::::::::::::::::::::\n\n");
+	
+	for (int i = 0; i < num_commands(); i++)
+		printf(" %s\n", command_list[i]);
+	return 1;
+}
 
 
 char *readline()
@@ -115,9 +157,48 @@ char **parse(char *line)
 	return tokens;
 }
 
+int dispatch(char **args)
+{
+	pid_t pid;
+	int status;
+
+	pid = fork();
+
+	if (pid == 0)
+	{
+		if (execvp(args[0], args) == -1)
+			perror("shrewd");
+		exit(EXIT_FAILURE);
+	}
+	else if (pid < 0) 
+	{
+		perror("shrewd");
+	}
+	else
+	{
+		do
+		{
+			waitpid(pid, &status, WUNTRACED);
+		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+	}
+	return 1;
+}
+
 int execute(char **args)
 {
+	/* exception: if no input - empty string */
+	if (args[0] == NULL)
+		return 1;
 
+	/* rule: search list of commands to find match with input string */
+	for (int i = 0; i < num_commands(); i++)
+	{
+		/* if match is found, return command and execute */
+		if (strncmp(args[0], command_list[i], BUFSIZE) == 0)
+			return(*command_calls[i])(args);
+	}
+
+	return dispatch(args);
 }
 
 void init()
@@ -133,7 +214,7 @@ void init()
 		printf("shrewd :: ");
 		lines = readline();
 		args = parse(lines);
-		//status = execute(args);
+		status = execute(args);
 		free(lines);
 		free(args);
 
