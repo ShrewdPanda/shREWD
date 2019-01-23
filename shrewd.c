@@ -120,7 +120,7 @@ int execute(char **args)
 
 }
 
-void shrewd_loop()
+void init()
 {
 	char *lines;
 	char **args;
@@ -130,7 +130,7 @@ void shrewd_loop()
 
 	do
 	{	
-		printf("shrewd> ");
+		printf("shrewd :: ");
 		lines = readline();
 		args = parse(lines);
 		//status = execute(args);
@@ -142,6 +142,6 @@ void shrewd_loop()
 
 int main(int argc, char **argv[])
 {
-	shrewd_loop();
+	init();
 	return EXIT_SUCCESS;
 }
