@@ -48,7 +48,7 @@ int call_help(char **args)
 	printf("::::::::::::::::::::::::::::::::::\n\n");
 	
 	for (int i = 0; i < num_commands(); i++)
-		printf(" %s\n", command_list[i]);
+		printf("\t%s\n", command_list[i]);
 	printf("\n\n");
 	return 1;
 }
@@ -163,24 +163,33 @@ int dispatch(char **args)
 {
 	pid_t pid;
 	int status;
-
+	
+	/* start new process */
 	pid = fork();
 
+	/* if fork() is successful */
 	if (pid == 0)
 	{
+		/* execute arguments; handle exception of argument execution failure */
 		if (execvp(args[0], args) == -1)
 			perror("shrewd");
+		/* exit fail regardless of success executing */
 		exit(EXIT_FAILURE);
 	}
+	/* if there is execution exception */
 	else if (pid < 0) 
 	{
 		perror("shrewd");
 	}
+	/* if there is timeout error */
 	else
 	{
 		do
 		{
+			/* suspend execution, wait for process state to change */
+			/* return if child has stopped */
 			waitpid(pid, &status, WUNTRACED);
+			/* continue while the process hasn't exited or raised a signal */
 		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
 	}
 	return 1;
@@ -217,6 +226,8 @@ void init()
 		lines = readline();
 		args = parse(lines);
 		status = execute(args);
+	
+		/* free DMA after use to avoid memleaks */	
 		free(lines);
 		free(args);
 
