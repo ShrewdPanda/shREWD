@@ -15,16 +15,19 @@
 
 
 /* prototypes for each of the calls */
+int call_cd(char **args);
 int call_exit(char **args);
 int call_help(char **args);
 
 /* list of calls */
 char *command_list[] = {
+	"cd",
 	"exit",
 	"help"
 };
 
 int (*command_calls[]) (char **) = {
+	&call_cd,
 	&call_exit,
 	&call_help
 };
@@ -35,6 +38,12 @@ int num_commands()
 }
 
 /* explicit declarations for shell function calls */
+int call_cd(char **args)
+{
+	printf("%s", args[1]);
+}
+
+
 int call_exit(char **args)
 {
 	exit(0);
@@ -217,12 +226,13 @@ void init()
 	char *lines;
 	char **args;
 	int status;
+	char cwd[1024];
 
 	system("clear");
 
 	do
 	{	
-		printf("shrewd :: ");
+		printf("%s @ %s\n :: ", getenv("USER"), getcwd(cwd, sizeof(cwd)));
 		lines = readline();
 		args = parse(lines);
 		status = execute(args);
